@@ -8,6 +8,11 @@ let prizes = [];
 let isSpinning = false;
 let currentRotation = 0;
 
+// Load Logo
+const logoImg = new Image();
+logoImg.src = "https://img.capalangresource.com/images/public/cpwl/banner/WLLB7/GENERAL/banner_20250426050341681.webp";
+logoImg.onload = () => drawWheel();
+
 // Initialize Prizes from Engine
 if (window.InternalEngine) {
     prizes = window.InternalEngine.getPrizes();
@@ -65,12 +70,40 @@ function drawWheel() {
         ctx.restore();
     }
 
-    // Outer Glow Ring
+    // Outer Glow Ring (Premium Border)
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.strokeStyle = '#d4af37';
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 10;
     ctx.stroke();
+
+    // Inner shadow ring for depth
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius - 5, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw Center Logo
+    const logoSize = 100;
+    ctx.save();
+    // Shadow for center logo
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    
+    // Draw white/gold circle backing for logo
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, logoSize/2 + 5, 0, 2 * Math.PI);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    if (logoImg.complete) {
+        ctx.drawImage(logoImg, centerX - logoSize/2, centerY - logoSize/2, logoSize, logoSize);
+    }
+    ctx.restore();
 }
 
 function spin() {
