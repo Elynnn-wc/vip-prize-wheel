@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VIP Fortune Wheel | Premium Rewards</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="extras.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/extras.css">
+    <link rel="stylesheet" href="css/luxury_additions.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK (Compat Version for simpler vanilla JS setup) -->
@@ -45,10 +46,15 @@
     </div>
 
     <div class="app-container" id="appMain" style="display: none;">
+        <!-- Luxury Banner -->
+        <div class="banner-container">
+            <img src="https://img.capalangresource.com/images/public/cpwl/slideshow/WLLB7/GENERAL/slideshow_20250426022829742.gif" alt="VIP Fortune Wheel" class="main-banner">
+        </div>
+
         <!-- Luxury Header -->
         <header class="luxury-header">
-            <!-- Secret Trigger on this H1 -->
-            <h1 class="glitter-text" id="secretTrigger">Fortune Wheel</h1>
+            <!-- Secret Trigger on this Hidden ID -->
+            <div id="secretTrigger" style="height: 20px; width: 100%;"></div>
             <p class="subtitle">Welcome, <span id="displayPlayerId">VIP</span> | <a href="#" id="logoutBtn" style="color: #d4af37;">Logout</a></p>
             
             <!-- Dev Mode Controls (Hidden normally) -->
@@ -89,9 +95,9 @@
         </footer>
     </div>
 
-    <script src="firebase-config.js"></script>
-    <script src="auth-db.js"></script>
-    <script src="probability-engine.js"></script>
-    <script src="wheel.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth-db.js"></script>
+    <script src="js/probability-engine.js"></script>
+    <script src="js/wheel.js"></script>
 </body>
 </html>
