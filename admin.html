@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/extras.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        th {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary-gold);
+            text-transform: uppercase;
+        }
+        .status-pending { color: #ff9f40; }
+        .status-claimed { color: #8fd14f; }
+    </style>
+</head>
+<body>
+    <div class="app-container admin-container">
+        <header class="luxury-header">
+            <h1 class="glitter-text-small">Admin Dashboard</h1>
+            <p class="subtitle">Reward Verification Center</p>
+            <a href="index.html" style="color:var(--primary-gold); margin-top:20px; display:inline-block;">← Back to Wheel</a>
+        </header>
+
+        <div class="glassmorphism" style="padding: 2rem; border-radius: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Recent Claims</h3>
+                <button id="refreshBtn" class="claim-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">REFRESH</button>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Player ID</th>
+                        <th>Prize Set</th>
+                        <th>Verify Code</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="claimsTableBody">
+                    <tr><td colspan="6" style="text-align:center;">Loading records from Firebase...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script>
+        const tbody = document.getElementById('claimsTableBody');
+        
+        async function loadClaims() {
+            if (!window.FB || !window.FB.db) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ff4d4d;">Firebase not connected! Please update firebase-config.js</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+            try {
+                const snapshot = await window.FB.db.collection('claims')
+                    .orderBy('timestamp', 'desc').limit(50).get();
+                    
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No pending claims found.</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const dateStr = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'N/A';
+                    html += `
+                        <tr>
+                            <td>${dateStr}</td>
+                            <td>${data.userId}</td>
+                            <td style="font-weight:bold; color:var(--primary-gold);">${data.prize}</td>
+                            <td style="letter-spacing:1px; font-family:monospace;">${data.code}</td>
+                            <td class="${data.status === 'Pending' ? 'status-pending' : 'status-claimed'}">${data.status}</td>
+                            <td>
+                                ${data.status === 'Pending' 
+                                  ? `<button onclick="markClaimed('${doc.id}')" style="background:var(--primary-gold); border:none; padding:5px 10px; cursor:pointer;">Mark Claimed</button>` 
+                                  : '✅'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } catch(e) {
+                console.error("Error loading docs", e);
+                tbody.innerHTML = `<tr><td colspan="6">Error loading data: ${e.message}</td></tr>`;
+            }
+        }
+
+        window.markClaimed = async function(docId) {
+            if(confirm("Mark this reward as claimed by the VIP?")) {
+                await window.FB.db.collection('claims').doc(docId).update({ status: 'Claimed' });
+                loadClaims();
+            }
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', loadClaims);
+        
+        // Auto load on start
+        setTimeout(loadClaims, 500);
+    </script>
+</body>
+</html>

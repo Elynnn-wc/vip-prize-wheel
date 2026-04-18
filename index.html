@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Fortune Wheel | Premium Rewards</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/extras.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK (Compat Version for simpler vanilla JS setup) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fullscreen-overlay">
+        <div class="glassmorphism login-box">
+            <h2 class="glitter-text-small">Welcome VIP</h2>
+            <p>Please enter your details to login or register.</p>
+            <input type="text" id="playerIdInput" placeholder="Player ID (e.g. VIP888)" class="luxury-input">
+            
+            <div class="phone-input-group">
+                <span class="phone-prefix">+65</span>
+                <input type="number" id="playerPhoneInput" placeholder="8 Digit Phone" class="luxury-input phone-input" inputmode="numeric" pattern="[0-9]{8}">
+            </div>
+
+            <button id="loginBtn" class="claim-btn">ENTER LOUNGE</button>
+            <div id="loginError" style="color: #ff4d4d; margin-top: 10px; display: none;">Invalid ID or Phone</div>
+        </div>
+    </div>
+
+    <!-- Dev Mode Prompt -->
+    <div id="devModeScreen" class="fullscreen-overlay" style="display: none; z-index: 9999;">
+        <div class="glassmorphism login-box" style="border-color: #ff4d4d;">
+            <h2 style="color: #ff4d4d;">DEVELOPER OVERRIDE</h2>
+            <input type="password" id="devPassInput" placeholder="Passcode" class="luxury-input">
+            <button id="devLoginBtn" class="claim-btn" style="background: #ff4d4d; color: white;">AUTHORIZE</button>
+            <button id="devCancelBtn" class="close-modal" style="position:relative; right: 0; display: block; margin: 10px auto; font-size: 14px;">CANCEL</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="appMain" style="display: none;">
+        <!-- Luxury Header -->
+        <header class="luxury-header">
+            <!-- Secret Trigger on this H1 -->
+            <h1 class="glitter-text" id="secretTrigger">Fortune Wheel</h1>
+            <p class="subtitle">Welcome, <span id="displayPlayerId">VIP</span> | <a href="#" id="logoutBtn" style="color: #d4af37;">Logout</a></p>
+            
+            <!-- Dev Mode Controls (Hidden normally) -->
+            <div id="devControls" style="display: none; margin-top: 15px; padding: 10px; border: 1px dashed #ff4d4d; background: rgba(0,0,0,0.5);">
+                <p style="color: #ff4d4d; font-weight: bold;">DEV MODE ACTIVE - DATA RECORDING OFF (INFINITE SPINS)</p>
+            </div>
+        </header>
+
+        <!-- Main Wheel Section -->
+        <main class="wheel-section">
+            <div class="wheel-outer-ring">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                <div class="wheel-center">
+                    <button id="spinBtn" class="spin-button">SPIN</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Prize Modal -->
+        <div id="prizeModal" class="modal">
+            <div class="modal-content glassmorphism">
+                <span class="close-modal">&times;</span>
+                <div class="prize-icon" id="prizeIcon">🏆</div>
+                <h2>Congratulations!</h2>
+                <p>You've won:</p>
+                <h1 id="prizeName" class="winner-name">JACKPOT</h1>
+                <div style="margin: 15px 0; padding: 10px; border: 1px dashed var(--primary-gold); background: rgba(0,0,0,0.3);">
+                    <p style="font-size: 0.9rem;">Your Claim Verify Code:</p>
+                    <h3 id="verifyCodeDisplay" style="color: white; letter-spacing: 3px; user-select: all;">GEN-ERAT-ING</h3>
+                </div>
+                <button class="claim-btn">COLLECT REWARD</button>
+            </div>
+        </div>
+
+        <footer class="luxury-footer">
+            <p>&copy; 2026 VIP LUXURY LOUNGE. ALL RIGHTS RESERVED.</p>
+        </footer>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth-db.js"></script>
+    <script src="js/probability-engine.js"></script>
+    <script src="js/wheel.js"></script>
+</body>
+</html>
