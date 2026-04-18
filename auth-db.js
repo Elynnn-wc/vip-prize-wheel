@@ -43,6 +43,11 @@ document.getElementById('devLoginBtn').addEventListener('click', () => {
 });
 
 
+// --- UTILS ---
+function getSGTDate() {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore' }).format(new Date());
+}
+
 // --- PLAYER LOGIN ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
     const id = document.getElementById('playerIdInput').value.trim();
@@ -55,11 +60,13 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     }
     
     document.getElementById('loginError').style.display = 'none';
+    const today = getSGTDate();
     
     if (window.FB && window.FB.db) {
         try {
             const userRef = window.FB.db.collection("users").doc(id);
             const doc = await userRef.get();
+            
             if (doc.exists) {
                 const data = doc.data();
                 if (data.phone !== phone) {
@@ -67,11 +74,27 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
                     document.getElementById('loginError').style.display = 'block';
                     return;
                 }
-                currentUser = { id: id, spins: data.spins || 0 };
+                
+                // Daily Reset Logic
+                if (data.lastSpinDate !== today) {
+                    // New day! Reset spin to 1
+                    await userRef.update({ 
+                        spins: 1, 
+                        lastSpinDate: today 
+                    });
+                    currentUser = { id: id, spins: 1 };
+                } else {
+                    currentUser = { id: id, spins: data.spins || 0 };
+                }
             } else {
                 // New user registration
                 currentUser = { id: id, spins: 1 };
-                await userRef.set({ phone: phone, spins: 1, createdAt: new Date() });
+                await userRef.set({ 
+                    phone: phone, 
+                    spins: 1, 
+                    lastSpinDate: today,
+                    createdAt: new Date() 
+                });
             }
         } catch(e) {
             console.warn("DB error, using offline logic.", e);
@@ -83,7 +106,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     }
     
     if (currentUser.spins <= 0) {
-        document.getElementById('loginError').innerText = "You have 0 spins remaining today.";
+        document.getElementById('loginError').innerText = "You have 0 spins remaining today. Please come back tomorrow!";
         document.getElementById('loginError').style.display = 'block';
         return;
     }
