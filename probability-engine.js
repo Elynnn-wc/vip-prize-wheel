@@ -10,7 +10,9 @@
     let _prizes = [];
     
     try {
-        _prizes = JSON.parse(atob(_c));
+        // Fix: Properly decode string with Emojis (UTF-8)
+        const bytes = decodeURIComponent(escape(atob(_c)));
+        _prizes = JSON.parse(bytes);
     } catch (e) {
         console.error("System error: Core configuration corrupted.");
     }
